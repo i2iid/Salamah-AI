@@ -1,0 +1,122 @@
+<html>
+<head>
+<title>Salamah.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #bcbec4;}
+.s1 { color: #cf8e6d;}
+.s2 { color: #7a7e85;}
+.s3 { color: #bcbec4;}
+.s4 { color: #6aab73;}
+.s5 { color: #2aacb8;}
+</style>
+</head>
+<body bgcolor="#1e1f22">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+Salamah.py</font>
+</center></td></tr></table>
+<pre>
+
+
+<span class="s1">import </span><span class="s0">cv2</span>
+<span class="s1">import </span><span class="s0">mediapipe </span><span class="s1">as </span><span class="s0">mp</span>
+<span class="s1">import </span><span class="s0">random</span>
+<span class="s1">import </span><span class="s0">os</span>
+<span class="s1">import </span><span class="s0">certifi</span>
+
+<span class="s2"># إصلاح SSL في الماك (مهم لتشغيل MediaPipe)</span>
+<span class="s0">os</span><span class="s3">.</span><span class="s0">environ</span><span class="s3">[</span><span class="s4">'SSL_CERT_FILE'</span><span class="s3">] = </span><span class="s0">certifi</span><span class="s3">.</span><span class="s0">where</span><span class="s3">()</span>
+
+<span class="s2"># إعداد mediapipe بدقة عالية وتحليل كل فريم كصورة منفصلة</span>
+<span class="s0">mp_pose </span><span class="s3">= </span><span class="s0">mp</span><span class="s3">.</span><span class="s0">solutions</span><span class="s3">.</span><span class="s0">pose</span>
+<span class="s0">pose </span><span class="s3">= </span><span class="s0">mp_pose</span><span class="s3">.</span><span class="s0">Pose</span><span class="s3">(</span>
+    <span class="s0">static_image_mode</span><span class="s3">=</span><span class="s1">True</span><span class="s3">,</span>
+    <span class="s0">model_complexity</span><span class="s3">=</span><span class="s5">2</span><span class="s3">,</span>
+    <span class="s0">enable_segmentation</span><span class="s3">=</span><span class="s1">False</span><span class="s3">,</span>
+    <span class="s0">min_detection_confidence</span><span class="s3">=</span><span class="s5">0.3</span><span class="s3">,</span>
+    <span class="s0">min_tracking_confidence</span><span class="s3">=</span><span class="s5">0.3</span>
+<span class="s3">)</span>
+<span class="s0">mp_drawing </span><span class="s3">= </span><span class="s0">mp</span><span class="s3">.</span><span class="s0">solutions</span><span class="s3">.</span><span class="s0">drawing_utils</span>
+
+<span class="s2"># الفيديو (تأكد من المسار الكامل على جهازك)</span>
+<span class="s0">video_path </span><span class="s3">= </span><span class="s4">'/Users/hutaf/PycharmProjects/PythonProject3/match2_converted_short.mp4'</span>
+<span class="s0">cap </span><span class="s3">= </span><span class="s0">cv2</span><span class="s3">.</span><span class="s0">VideoCapture</span><span class="s3">(</span><span class="s0">video_path</span><span class="s3">)</span>
+
+<span class="s2"># بيانات اللاعب (وهمية)</span>
+<span class="s0">player_info </span><span class="s3">= {</span>
+    <span class="s4">&quot;Name&quot;</span><span class="s3">: </span><span class="s4">&quot;Ahmed Alrashid&quot;</span><span class="s3">,</span>
+    <span class="s4">&quot;Age&quot;</span><span class="s3">: </span><span class="s5">23</span><span class="s3">,</span>
+    <span class="s4">&quot;ID&quot;</span><span class="s3">: </span><span class="s4">&quot;2023010456&quot;</span>
+<span class="s3">}</span>
+
+<span class="s1">def </span><span class="s0">generate_fake_vitals</span><span class="s3">():</span>
+    <span class="s1">return </span><span class="s3">{</span>
+        <span class="s4">&quot;Heart Rate&quot;</span><span class="s3">: </span><span class="s0">random</span><span class="s3">.</span><span class="s0">randint</span><span class="s3">(</span><span class="s5">90</span><span class="s3">, </span><span class="s5">150</span><span class="s3">),</span>
+        <span class="s4">&quot;Oxygen&quot;</span><span class="s3">: </span><span class="s0">random</span><span class="s3">.</span><span class="s0">randint</span><span class="s3">(</span><span class="s5">92</span><span class="s3">, </span><span class="s5">100</span><span class="s3">),</span>
+        <span class="s4">&quot;Stress&quot;</span><span class="s3">: </span><span class="s0">random</span><span class="s3">.</span><span class="s0">randint</span><span class="s3">(</span><span class="s5">1</span><span class="s3">, </span><span class="s5">10</span><span class="s3">)</span>
+    <span class="s3">}</span>
+
+<span class="s1">def </span><span class="s0">predict_fall</span><span class="s3">(</span><span class="s0">landmarks</span><span class="s3">):</span>
+    <span class="s1">try</span><span class="s3">:</span>
+        <span class="s0">head_y </span><span class="s3">= </span><span class="s0">landmarks</span><span class="s3">[</span><span class="s5">0</span><span class="s3">].</span><span class="s0">y</span>
+        <span class="s0">knee_y </span><span class="s3">= (</span><span class="s0">landmarks</span><span class="s3">[</span><span class="s5">25</span><span class="s3">].</span><span class="s0">y </span><span class="s3">+ </span><span class="s0">landmarks</span><span class="s3">[</span><span class="s5">26</span><span class="s3">].</span><span class="s0">y</span><span class="s3">) / </span><span class="s5">2</span>
+        <span class="s1">return </span><span class="s0">head_y </span><span class="s3">&gt; </span><span class="s0">knee_y </span><span class="s3">- </span><span class="s5">0.1</span>
+    <span class="s1">except</span><span class="s3">:</span>
+        <span class="s1">return False</span>
+
+<span class="s1">if not </span><span class="s0">cap</span><span class="s3">.</span><span class="s0">isOpened</span><span class="s3">():</span>
+    <span class="s0">print</span><span class="s3">(</span><span class="s4">&quot;❌ Unable to open video.&quot;</span><span class="s3">)</span>
+    <span class="s0">exit</span><span class="s3">()</span>
+
+<span class="s1">while </span><span class="s0">cap</span><span class="s3">.</span><span class="s0">isOpened</span><span class="s3">():</span>
+    <span class="s0">success</span><span class="s3">, </span><span class="s0">frame </span><span class="s3">= </span><span class="s0">cap</span><span class="s3">.</span><span class="s0">read</span><span class="s3">()</span>
+    <span class="s1">if not </span><span class="s0">success</span><span class="s3">:</span>
+        <span class="s1">break</span>
+
+    <span class="s0">image </span><span class="s3">= </span><span class="s0">cv2</span><span class="s3">.</span><span class="s0">cvtColor</span><span class="s3">(</span><span class="s0">frame</span><span class="s3">, </span><span class="s0">cv2</span><span class="s3">.</span><span class="s0">COLOR_BGR2RGB</span><span class="s3">)</span>
+    <span class="s0">results </span><span class="s3">= </span><span class="s0">pose</span><span class="s3">.</span><span class="s0">process</span><span class="s3">(</span><span class="s0">image</span><span class="s3">)</span>
+    <span class="s0">image </span><span class="s3">= </span><span class="s0">cv2</span><span class="s3">.</span><span class="s0">cvtColor</span><span class="s3">(</span><span class="s0">image</span><span class="s3">, </span><span class="s0">cv2</span><span class="s3">.</span><span class="s0">COLOR_RGB2BGR</span><span class="s3">)</span>
+
+    <span class="s1">if </span><span class="s0">results</span><span class="s3">.</span><span class="s0">pose_landmarks</span><span class="s3">:</span>
+        <span class="s0">mp_drawing</span><span class="s3">.</span><span class="s0">draw_landmarks</span><span class="s3">(</span><span class="s0">image</span><span class="s3">, </span><span class="s0">results</span><span class="s3">.</span><span class="s0">pose_landmarks</span><span class="s3">, </span><span class="s0">mp_pose</span><span class="s3">.</span><span class="s0">POSE_CONNECTIONS</span><span class="s3">)</span>
+
+        <span class="s0">landmarks </span><span class="s3">= </span><span class="s0">results</span><span class="s3">.</span><span class="s0">pose_landmarks</span><span class="s3">.</span><span class="s0">landmark</span>
+        <span class="s0">vitals </span><span class="s3">= </span><span class="s0">generate_fake_vitals</span><span class="s3">()</span>
+        <span class="s0">is_falling </span><span class="s3">= </span><span class="s0">predict_fall</span><span class="s3">(</span><span class="s0">landmarks</span><span class="s3">)</span>
+
+        <span class="s0">h</span><span class="s3">, </span><span class="s0">w</span><span class="s3">, </span><span class="s0">_ </span><span class="s3">= </span><span class="s0">image</span><span class="s3">.</span><span class="s0">shape</span>
+        <span class="s0">nose </span><span class="s3">= </span><span class="s0">landmarks</span><span class="s3">[</span><span class="s5">0</span><span class="s3">]</span>
+        <span class="s0">x</span><span class="s3">, </span><span class="s0">y </span><span class="s3">= </span><span class="s0">int</span><span class="s3">(</span><span class="s0">nose</span><span class="s3">.</span><span class="s0">x </span><span class="s3">* </span><span class="s0">w</span><span class="s3">), </span><span class="s0">int</span><span class="s3">(</span><span class="s0">nose</span><span class="s3">.</span><span class="s0">y </span><span class="s3">* </span><span class="s0">h</span><span class="s3">)</span>
+
+        <span class="s0">box_color </span><span class="s3">= (</span><span class="s5">0</span><span class="s3">, </span><span class="s5">0</span><span class="s3">, </span><span class="s5">255</span><span class="s3">) </span><span class="s1">if </span><span class="s0">is_falling </span><span class="s1">else </span><span class="s3">(</span><span class="s5">0</span><span class="s3">, </span><span class="s5">255</span><span class="s3">, </span><span class="s5">0</span><span class="s3">)</span>
+        <span class="s0">cv2</span><span class="s3">.</span><span class="s0">rectangle</span><span class="s3">(</span><span class="s0">image</span><span class="s3">, (</span><span class="s0">x</span><span class="s3">-</span><span class="s5">60</span><span class="s3">, </span><span class="s0">y</span><span class="s3">-</span><span class="s5">100</span><span class="s3">), (</span><span class="s0">x</span><span class="s3">+</span><span class="s5">60</span><span class="s3">, </span><span class="s0">y</span><span class="s3">+</span><span class="s5">110</span><span class="s3">), </span><span class="s0">box_color</span><span class="s3">, </span><span class="s5">2</span><span class="s3">)</span>
+
+        <span class="s0">y_offset </span><span class="s3">= </span><span class="s5">30</span>
+        <span class="s0">cv2</span><span class="s3">.</span><span class="s0">putText</span><span class="s3">(</span><span class="s0">image</span><span class="s3">, </span><span class="s4">f&quot;Name: </span><span class="s1">{</span><span class="s0">player_info</span><span class="s3">[</span><span class="s4">'Name'</span><span class="s3">]</span><span class="s1">}</span><span class="s4">&quot;</span><span class="s3">, (</span><span class="s5">10</span><span class="s3">, </span><span class="s0">y_offset</span><span class="s3">), </span><span class="s0">cv2</span><span class="s3">.</span><span class="s0">FONT_HERSHEY_SIMPLEX</span><span class="s3">, </span><span class="s5">0.6</span><span class="s3">, (</span><span class="s5">255</span><span class="s3">,</span><span class="s5">255</span><span class="s3">,</span><span class="s5">255</span><span class="s3">), </span><span class="s5">2</span><span class="s3">)</span>
+        <span class="s0">y_offset </span><span class="s3">+= </span><span class="s5">25</span>
+        <span class="s0">cv2</span><span class="s3">.</span><span class="s0">putText</span><span class="s3">(</span><span class="s0">image</span><span class="s3">, </span><span class="s4">f&quot;Age: </span><span class="s1">{</span><span class="s0">player_info</span><span class="s3">[</span><span class="s4">'Age'</span><span class="s3">]</span><span class="s1">}</span><span class="s4">&quot;</span><span class="s3">, (</span><span class="s5">10</span><span class="s3">, </span><span class="s0">y_offset</span><span class="s3">), </span><span class="s0">cv2</span><span class="s3">.</span><span class="s0">FONT_HERSHEY_SIMPLEX</span><span class="s3">, </span><span class="s5">0.6</span><span class="s3">, (</span><span class="s5">255</span><span class="s3">,</span><span class="s5">255</span><span class="s3">,</span><span class="s5">255</span><span class="s3">), </span><span class="s5">2</span><span class="s3">)</span>
+        <span class="s0">y_offset </span><span class="s3">+= </span><span class="s5">25</span>
+        <span class="s0">cv2</span><span class="s3">.</span><span class="s0">putText</span><span class="s3">(</span><span class="s0">image</span><span class="s3">, </span><span class="s4">f&quot;ID: </span><span class="s1">{</span><span class="s0">player_info</span><span class="s3">[</span><span class="s4">'ID'</span><span class="s3">]</span><span class="s1">}</span><span class="s4">&quot;</span><span class="s3">, (</span><span class="s5">10</span><span class="s3">, </span><span class="s0">y_offset</span><span class="s3">), </span><span class="s0">cv2</span><span class="s3">.</span><span class="s0">FONT_HERSHEY_SIMPLEX</span><span class="s3">, </span><span class="s5">0.6</span><span class="s3">, (</span><span class="s5">255</span><span class="s3">,</span><span class="s5">255</span><span class="s3">,</span><span class="s5">255</span><span class="s3">), </span><span class="s5">2</span><span class="s3">)</span>
+
+        <span class="s1">for </span><span class="s0">key</span><span class="s3">, </span><span class="s0">val </span><span class="s1">in </span><span class="s0">vitals</span><span class="s3">.</span><span class="s0">items</span><span class="s3">():</span>
+            <span class="s0">y_offset </span><span class="s3">+= </span><span class="s5">25</span>
+            <span class="s0">cv2</span><span class="s3">.</span><span class="s0">putText</span><span class="s3">(</span><span class="s0">image</span><span class="s3">, </span><span class="s4">f&quot;</span><span class="s1">{</span><span class="s0">key</span><span class="s1">}</span><span class="s4">: </span><span class="s1">{</span><span class="s0">val</span><span class="s1">}</span><span class="s4">&quot;</span><span class="s3">, (</span><span class="s5">10</span><span class="s3">, </span><span class="s0">y_offset</span><span class="s3">), </span><span class="s0">cv2</span><span class="s3">.</span><span class="s0">FONT_HERSHEY_SIMPLEX</span><span class="s3">, </span><span class="s5">0.6</span><span class="s3">, (</span><span class="s5">255</span><span class="s3">,</span><span class="s5">255</span><span class="s3">,</span><span class="s5">255</span><span class="s3">), </span><span class="s5">2</span><span class="s3">)</span>
+
+        <span class="s1">if </span><span class="s0">is_falling</span><span class="s3">:</span>
+            <span class="s0">cv2</span><span class="s3">.</span><span class="s0">putText</span><span class="s3">(</span><span class="s0">image</span><span class="s3">, </span><span class="s4">&quot;Fall Risk Detected&quot;</span><span class="s3">, (</span><span class="s0">x </span><span class="s3">- </span><span class="s5">40</span><span class="s3">, </span><span class="s0">y </span><span class="s3">- </span><span class="s5">120</span><span class="s3">), </span><span class="s0">cv2</span><span class="s3">.</span><span class="s0">FONT_HERSHEY_SIMPLEX</span><span class="s3">, </span><span class="s5">0.8</span><span class="s3">, (</span><span class="s5">0</span><span class="s3">, </span><span class="s5">0</span><span class="s3">, </span><span class="s5">255</span><span class="s3">), </span><span class="s5">3</span><span class="s3">)</span>
+
+    <span class="s1">else</span><span class="s3">:</span>
+        <span class="s0">cv2</span><span class="s3">.</span><span class="s0">putText</span><span class="s3">(</span><span class="s0">image</span><span class="s3">, </span><span class="s4">&quot;No player detected&quot;</span><span class="s3">, (</span><span class="s5">20</span><span class="s3">, </span><span class="s5">50</span><span class="s3">), </span><span class="s0">cv2</span><span class="s3">.</span><span class="s0">FONT_HERSHEY_SIMPLEX</span><span class="s3">, </span><span class="s5">0.7</span><span class="s3">, (</span><span class="s5">0</span><span class="s3">, </span><span class="s5">255</span><span class="s3">, </span><span class="s5">255</span><span class="s3">), </span><span class="s5">2</span><span class="s3">)</span>
+
+    <span class="s0">cv2</span><span class="s3">.</span><span class="s0">imshow</span><span class="s3">(</span><span class="s4">'Salamah - Player Monitoring System'</span><span class="s3">, </span><span class="s0">image</span><span class="s3">)</span>
+
+    <span class="s1">if </span><span class="s0">cv2</span><span class="s3">.</span><span class="s0">waitKey</span><span class="s3">(</span><span class="s5">60</span><span class="s3">) &amp; </span><span class="s5">0xFF </span><span class="s3">== </span><span class="s0">ord</span><span class="s3">(</span><span class="s4">'q'</span><span class="s3">):</span>
+        <span class="s1">break</span>
+
+<span class="s0">cap</span><span class="s3">.</span><span class="s0">release</span><span class="s3">()</span>
+<span class="s0">cv2</span><span class="s3">.</span><span class="s0">destroyAllWindows</span><span class="s3">()</span>
+</pre>
+</body>
+</html>
